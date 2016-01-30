@@ -20,6 +20,10 @@ package com.github.jinahya.javadoc.info;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import static org.slf4j.LoggerFactory.getLogger;
+import static org.testng.Assert.assertFalse;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
@@ -30,42 +34,53 @@ import org.testng.annotations.Test;
 public class JavadocInfoTest {
 
 
-    @Test
-    public static void packageNames() throws IOException {
-        final String apiUrl = "http://docs.oracle.com/javase/8/docs/api/";
-        final List<String> packageNames = JavadocInfo.packageNames(apiUrl);
-        System.out.println(packageNames);
+    private static final Logger logger = getLogger(JavadocInfoTest.class);
+
+
+    @DataProvider
+    static Object[][] apiUrls() {
+        return new Object[][]{
+            {"http://docs.oracle.com/javase/8/docs/api/"},
+            {"http://docs.oracle.com/javase/8/docs/api/"}
+        };
     }
 
 
-    @Test
-    public static void getClassNames() throws IOException {
-        final String apiUrl = "http://docs.oracle.com/javase/8/docs/api/";
-        final String packageName = "java.awt";
-        final Map<String, List<String>> classNames
-            = JavadocInfo.classNames(apiUrl, packageName);
-        System.out.println(classNames);
+    @DataProvider
+    static Object[][] artifacts() {
+        return new Object[][]{
+            {"com.google.guava", "guava", "19.0"}
+        };
     }
 
 
-    @Test
-    public static void javase8() throws IOException {
-        final String apiUrl = "http://docs.oracle.com/javase/8/docs/api/";
+    @Test(dataProvider = "apiUrls")
+    public static void apiUrl(final String apiUrl) throws IOException {
+
         final List<String> packageNames = JavadocInfo.packageNames(apiUrl);
+        assertFalse(packageNames.isEmpty());
+
         for (final String packageName : packageNames) {
-            final Map<String, List<String>> classNames
-                = JavadocInfo.classNames(apiUrl, packageName);
+            final Map<String, List<String>> classNames = JavadocInfo.classNames(
+                apiUrl, packageName);
+            assertFalse(classNames.isEmpty());
         }
     }
 
 
-    @Test
-    public static void javase7() throws IOException {
-        final String apiUrl = "http://docs.oracle.com/javase/7/docs/api/";
-        final List<String> packageNames = JavadocInfo.packageNames(apiUrl);
+    @Test(dataProvider = "artifacts")
+    public static void artifact(final String groupId, final String artifactId,
+                                final String version)
+        throws IOException {
+
+        final List<String> packageNames
+            = JavadocInfo.packageNames(groupId, artifactId, version);
+        assertFalse(packageNames.isEmpty());
+
         for (final String packageName : packageNames) {
-            final Map<String, List<String>> classNames
-                = JavadocInfo.classNames(apiUrl, packageName);
+            final Map<String, List<String>> classNames = JavadocInfo.classNames(
+                groupId, artifactId, version, packageName);
+            assertFalse(classNames.isEmpty());
         }
     }
 

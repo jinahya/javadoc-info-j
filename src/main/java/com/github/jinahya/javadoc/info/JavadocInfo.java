@@ -40,6 +40,17 @@ import org.jsoup.select.Elements;
 public class JavadocInfo {
 
 
+    public static String apiUrl(final String groupId, final String artifactId,
+                                final String version)
+        throws IOException {
+
+        return "http://static.javadoc.io"
+               + "/" + groupId
+               + "/" + artifactId
+               + "/" + version;
+    }
+
+
     public static List<String> packageNames(String apiUrl) throws IOException {
 
         if (apiUrl.endsWith("/")) {
@@ -51,6 +62,8 @@ public class JavadocInfo {
         final String url = apiUrl + "/package-list";
         final HttpURLConnection connection
             = (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestProperty(
+            "User-Agent", JavadocInfo.class.getName());
         connection.connect();
         try {
             final BufferedReader reader = new BufferedReader(
@@ -70,6 +83,15 @@ public class JavadocInfo {
     }
 
 
+    public static List<String> packageNames(final String groupId,
+                                            final String artifactId,
+                                            final String version)
+        throws IOException {
+
+        return packageNames(apiUrl(groupId, artifactId, version));
+    }
+
+
     public static Map<String, List<String>> classNames(
         String apiUrl, String packageName)
         throws IOException {
@@ -81,8 +103,10 @@ public class JavadocInfo {
 
         final Map<String, List<String>> classNames = new HashMap<>();
 
-        final Document document = Jsoup.connect(
-            apiUrl + "/" + packageName + "/package-frame.html").get();
+        final Document document = Jsoup
+            .connect(apiUrl + "/" + packageName + "/package-frame.html")
+            .userAgent(JavadocInfo.class.getName())
+            .get();
         final Elements es1 = document.select("ul[title]");
         for (Iterator<Element> i = es1.iterator(); i.hasNext();) {
             final Element e1 = i.next();
@@ -97,6 +121,15 @@ public class JavadocInfo {
         }
 
         return classNames;
+    }
+
+
+    public static Map<String, List<String>> classNames(
+        final String groupId, final String artifactId, final String version,
+        final String packageName)
+        throws IOException {
+
+        return classNames(apiUrl(groupId, artifactId, version), packageName);
     }
 
 
