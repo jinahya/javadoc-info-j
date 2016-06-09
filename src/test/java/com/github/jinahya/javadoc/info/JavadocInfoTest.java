@@ -41,7 +41,8 @@ public class JavadocInfoTest {
     static Object[][] apiUrls() {
         return new Object[][]{
             {"http://docs.oracle.com/javase/8/docs/api/"},
-            {"http://docs.oracle.com/javase/8/docs/api/"}
+            {"http://docs.oracle.com/javase/8/docs/api/"},
+            {"http://docs.spring.io/spring/docs/current/javadoc-api/"}
         };
     }
 
